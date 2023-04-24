@@ -29,7 +29,7 @@
 
 * Comando para crear una aplicación a partir de la construcción realizada.
 
-`oc new-app project-openshift/ms-openshiftdemo:latest --name=ms-openshiftdemo --allow-missing-imagestream-tags=true -e JAVA_OPTS='-Dapp.properties=/deployments/config/application.properties  -Djavax.net.ssl.trustStore=/deployments/config/falcon.jks  -Djavax.net.ssl.trustStorePassword=changeit' -n project-openshift`
+`oc new-app project-openshift/ms-openshiftdemo:latest --name=ms-openshiftdemo --allow-missing-imagestream-tags=true -e JAVA_OPTS="-Dapp.properties=/deployments/config/application.properties  -Djavax.net.ssl.trustStore=/deployments/config/certificados-ms-openshiftdemo.jks  -Djavax.net.ssl.trustStorePassword=changeit" --as-deployment-config -n project-openshift `
 
 * Comando para aumentar los recursos del deployment config
 
@@ -56,7 +56,7 @@
 
 * Comando para asignar un volumen al deployment config de tipo secret que almacenará el jks donde se encuentran los certificados
 
-`oc set volume dc/ms-openshiftdemo --add --type=secret --name=certificate-ms-openshiftdemo --mount-path=/deployments/config/falcon.jks --sub-path=falcon.jks --secret-name=certificate-ms-openshiftdemo --read-only=true --overwrite  -n project-openshift`
+`oc set volume dc/ms-openshiftdemo --add --type=secret --name=certificate-ms-openshiftdemo --mount-path=/deployments/config/certificados-ms-openshiftdemo.jks --sub-path=certificados-ms-openshiftdemo.jks --secret-name=certificate-ms-openshiftdemo --read-only=true --overwrite  -n project-openshift`
 
 * Comando para eliminar el service ms-openshiftdemo ignorando si no lo encuentra
 
@@ -98,7 +98,7 @@
 
 * Comando para crear el secret que almacena la contraseña del jks que almacena los certificados
 
-`oc create secret generic certificate-ms-openshiftdemo --from-literal=certificate-ms-openshiftdemo=changeit --from-file=./src/main/resources/falcon.jks -n project-openshift`
+`oc create secret generic certificate-ms-openshiftdemo --from-literal=certificate-ms-openshiftdemo=changeit --from-file=./src/main/resources/certificados-ms-openshiftdemo.jks -n project-openshift`
 
 * Comando para asignar la imagen contruida al deployment config
 
@@ -116,3 +116,21 @@
 `oc new app openshift/openjdk-11-rhel7:1.1~https://cohvsappbit01.corp.popular.local:8443/scm/bms/ms_contextualmessaging.git --name ms_contextualmessaging -e JAVA_OPTS='-Dapp.properties=/deployments/config/application.properties  -Djavax.net.ssl.trustStore=/deployments/config/falcon.jks  -Djavax.net.ssl.trustStorePassword=changeit'`
 
 `oc expose svc ms_contextualmessaging --port 8080`
+
+
+* Nuevos lineamientos de pipeline
+`oc new-project adiellara-prod`
+`oc project adiellara-prod`
+`oc create secret generic apikey-ms-openshiftdemo2 --from-file=src/main/resources/apikey.txt`
+
+* Ejecutar este comando solo si no existe el secreto que almacena el jks.
+`oc create secret generic certificate-ms-openshiftdemo2 --from-literal=certificate-ms-openshiftdemo=changeit --from-file=src/main/resources/certificados-ms-openshiftdemo.jks`
+* Se puede ejecutar este comando
+`oc apply -f configMap.yaml`
+* O
+`oc create cm ms-openshiftdemo-config --from-file=./src/main/resources/application.properties`
+
+* Aplicar el DeploymentConfig
+`oc apply -f deploymentConfig.yaml`
+`oc expose dc/ms-openshiftdemo2`
+`oc create route edge --service=ms-openshiftdemo2`

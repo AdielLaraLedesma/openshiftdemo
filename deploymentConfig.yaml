@@ -1,21 +1,62 @@
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
-  name: frontend
+  name: ms-openshiftdemo2
 spec:
   replicas: 1
   selector:
-    name: frontend
+    name: openshiftdemo2
   template:
     metadata:
       labels:
-        name: frontend
+        name: openshiftdemo2
     spec:
+      volumes:
+        - name: ms-openshiftdemo2-config
+          configMap:
+            name: ms-openshiftdemo2-config
+            defaultMode: 420
+        - name: apikey-ms-openshiftdemo2
+          secret:
+            secretName: apikey-ms-openshiftdemo2
+            defaultMode: 420
+        - name: certificate-ms-openshiftdemo2
+          secret:
+            secretName: certificate-ms-openshiftdemo2
+            defaultMode: 420
       containers:
-        - name: frontend
-          image: image-registry.openshift-image-registry.svc:5000/jmacias-01-dev/devfile-sample-code-with-quarkus-git@sha25
+        - resources:
+            limits:
+              cpu: 200m
+              memory: 400Mi
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          name: openshiftdemo2
+          env:
+            - name: JAVA_OPTS
+              value: >-
+                -Dapp.properties=/deployments/config/application.properties
+                -Djavax.net.ssl.trustStore=/deployments/config/certificados-ms-openshiftdemo.jks
+                -Djavax.net.ssl.trustStorePassword=changeit
+          image: image-registry.openshift-image-registry.svc:5000/adiellara-dev/ms-openshiftdemo@sha256:939ba45dc0007719a426f45ae17929da565bcc584708c739ab1a2bd34f80348d
           ports:
             - containerPort: 8080
-    type: ImageChange
+              protocol: TCP
+          volumeMounts:
+            - name: ms-openshiftdemo2-config
+              mountPath: /deployments/config/application.properties
+              subPath: application.properties
+            - name: apikey-ms-openshiftdemo2
+              readOnly: true
+              mountPath: /deployments/config/apikey.txt
+              subPath: apikey.txt
+            - name: certificate-ms-openshiftdemo2
+              readOnly: true
+              mountPath: /deployments/config/certificados-ms-openshiftdemo.jks
+              subPath: certificados-ms-openshiftdemo.jks
+    ##type: ImageChange
+  triggers:
+    - type: ConfigChange
   strategy:
     type: Rolling

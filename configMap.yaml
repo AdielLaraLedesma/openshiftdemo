@@ -1,0 +1,6 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ms-openshiftdemo2-config
+data:
+  application.properties: "api.version=3.0v\r\n\r\napi.key=deployments/config/apikey.txt"
