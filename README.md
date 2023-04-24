@@ -119,18 +119,29 @@
 
 
 * Nuevos lineamientos de pipeline
+
 `oc new-project adiellara-prod`
+
 `oc project adiellara-prod`
+
 `oc create secret generic apikey-ms-openshiftdemo2 --from-file=src/main/resources/apikey.txt`
 
 * Ejecutar este comando solo si no existe el secreto que almacena el jks.
+
 `oc create secret generic certificate-ms-openshiftdemo2 --from-literal=certificate-ms-openshiftdemo=changeit --from-file=src/main/resources/certificados-ms-openshiftdemo.jks`
+
 * Se puede ejecutar este comando
+
 `oc apply -f configMap.yaml`
+
 * O
+
 `oc create cm ms-openshiftdemo-config --from-file=./src/main/resources/application.properties`
 
 * Aplicar el DeploymentConfig
+
 `oc apply -f deploymentConfig.yaml`
+
 `oc expose dc/ms-openshiftdemo2`
+
 `oc create route edge --service=ms-openshiftdemo2`
