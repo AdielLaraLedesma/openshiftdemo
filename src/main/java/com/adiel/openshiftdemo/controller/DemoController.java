@@ -14,7 +14,7 @@ public class DemoController {
     @Autowired
     private DemoService demoService;
 
-    @Value("${version}")
+    @Value("${api.version}")
     private String version;
 
     @GetMapping("/hello")

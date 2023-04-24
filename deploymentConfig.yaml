@@ -1,0 +1,21 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    name: frontend
+  template:
+    metadata:
+      labels:
+        name: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: image-registry.openshift-image-registry.svc:5000/jmacias-01-dev/devfile-sample-code-with-quarkus-git@sha25
+          ports:
+            - containerPort: 8080
+    type: ImageChange
+  strategy:
+    type: Rolling
